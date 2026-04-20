@@ -44,13 +44,7 @@ Type=simple
 User=YOUR_USERNAME
 WorkingDirectory=/home/YOUR_USERNAME/MarketPulse
 EnvironmentFile=/home/YOUR_USERNAME/MarketPulse/.env
-
-# Запуск через uv (рекомендуется) или через venv
-# Вариант 1: через uv
-ExecStart=/home/YOUR_USERNAME/.local/bin/uv run python main.py
-# Вариант 2: через virtualenv
-# ExecStart=/home/YOUR_USERNAME/MarketPulse/venv/bin/python main.py
-
+ExecStart=/home/YOUR_USERNAME/MarketPulse/venv/bin/python main.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -58,8 +52,8 @@ StandardError=journal
 SyslogIdentifier=marketpulse
 
 # Защита (опционально, для продакшена)
-NoNewPrivileges=true
-PrivateTmp=true
+#NoNewPrivileges=true
+#PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
@@ -77,7 +71,7 @@ WantedBy=multi-user.target
 | `User` | Пользователь для запуска | `vitali_lukhverchyk` |
 | `WorkingDirectory` | Путь к проекту | `/home/user/MarketPulse` |
 | `EnvironmentFile` | Файл с переменными | `/home/user/MarketPulse/.env` |
-| `ExecStart` | Команда запуска | `uv run python main.py` |
+| `ExecStart` | Команда запуска | `python main.py` |
 | `Restart` | Политика перезапуска | `always` |
 | `RestartSec` | Задержка перед рестартом | `10` |
 
