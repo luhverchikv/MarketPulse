@@ -5,7 +5,7 @@
 
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.filter import StateFilter
+from aiogram.filters import StateFilter
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 
@@ -165,9 +165,8 @@ async def cb_google_selected(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.callback_query(F.data == "gtrends_cancel", StateFilter(GoogleTrendsForm.waiting_for_topic, GoogleTrendsForm.waiting_for_region, GoogleTrendsForm.waiting_for_period))
+@router.callback_query(F.data == "gtrends_cancel", F.state.in_([GoogleTrendsForm.waiting_for_topic, GoogleTrendsForm.waiting_for_region, GoogleTrendsForm.waiting_for_period]))
 async def cb_cancel_gtrends(callback: types.CallbackQuery, state: FSMContext):
-    """Отмена FSM-потока"""
     await state.clear()
     await callback.message.edit_text(
         "❌ Поиск отменён",
@@ -176,6 +175,8 @@ async def cb_cancel_gtrends(callback: types.CallbackQuery, state: FSMContext):
         ]])
     )
     await callback.answer()
+
+
 
 
 @router.message(GoogleTrendsForm.waiting_for_topic)
