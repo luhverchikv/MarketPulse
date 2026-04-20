@@ -1,36 +1,30 @@
-import schedule
-import time
-import threading
+# scheduler.py
+import asyncio
+from aiogram import Bot
 from api import fetch_all_trends
 from db import get_active_users, save_trends
-from telegram import Bot
+from config import config
 
-bot_instance = None
 
-def setup_scheduler(token: str):
-    global bot_instance
-    bot_instance = Bot(token=token)
-    # Ежедневная рассылка в 09:00. Для PM-аудитории это оптимальный формат дайджеста
-    schedule.every().day.at("09:00").do(_run_daily_digest)
-    threading.Thread(target=_scheduler_loop, daemon=True).start()
-
-def _scheduler_loop():
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
-
-def _run_daily_digest():
+async def send_daily_digest(bot: Bot):
+    """Асинхронная функция рассылки"""
     users = get_active_users()
+    
     for chat_id, territory, topic, period in users:
         try:
             trends = fetch_all_trends(territory, topic, period)
             
+            # Сохраняем сырые данные
             for source, items in trends.items():
                 save_trends(chat_id, source, items)
 
-            msg = f"📊 TrendScope Daily\n🌍 {territory} | 🏷 {topic} | 📅 {period}\n\n"
+            # Формируем сообщение
+            msg = f"📊 {config.app.project_name} Daily\n"
+            msg += f"🌍 {territory} | 🏷 {topic} | 📅 {period}\n\n"
+            
             for source, items in trends.items():
-                msg += f"🔹 {source.upper()}:\n"
+                emoji = "🔍" if source == "google" else "▶️"
+                msg += f"{emoji} **{source.upper()}**:\n"
                 for item in items[:3]:
                     if 'views' in item:
                         msg += f"• {item['title']} ({item['views']:,} 👁️)\n"
@@ -38,7 +32,27 @@ def _run_daily_digest():
                         msg += f"• {item['title']} (интерес: {item['volume']:,})\n"
                 msg += "\n"
             
-            bot_instance.send_message(chat_id=chat_id, text=msg)
+            await bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
+            
         except Exception:
             pass  # Без логирования по ТЗ
+
+
+async def scheduler_worker(bot: Bot, digest_time: str):
+    """Бесконечный цикл проверки времени"""
+    hour, minute = map(int, digest_time.split(":"))
+    
+    while True:
+        now = asyncio.get_event_loop().time()
+        # Вычисляем следующее время запуска (упрощённо)
+        # Для продакшена лучше использовать APScheduler с timezone
+        
+        current_hour = int(asyncio.get_event_loop().time() // 3600 % 24)
+        current_minute = int(asyncio.get_event_loop().time() // 60 % 60)
+        
+        if current_hour == hour and current_minute == minute:
+            await send_daily_digest(bot)
+            await asyncio.sleep(70)  # Ждём минуту, чтобы не сработать дважды
+        
+        await asyncio.sleep(30)  # Проверка каждые 30 секунд
 
