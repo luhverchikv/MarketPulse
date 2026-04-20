@@ -78,7 +78,7 @@ async def cb_youtube_category(callback: CallbackQuery):
     
     result = fetch_trending_videos(
         api_key=config.youtube.api_key,
-        region_code="RU",  # type: ignore
+        region_code="BY",  # type: ignore
         video_category_id=category_id,  # type: ignore
         max_results=10
     )
