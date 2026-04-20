@@ -13,6 +13,7 @@ router = Router()
 PLATFORMS = {
     "▶️ YouTube": "youtube",
     "🔍 Google Trends": "google",
+    "🔎 Яндекс": "yandex",
     # "🎵 TikTok": "tiktok",      # Заглушка на будущее
     # "🐦 X / Twitter": "twitter", # Заглушка на будущее
 }
