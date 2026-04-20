@@ -2,7 +2,7 @@
 from aiogram import Router, F, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from api.youtube import fetch_trending_videos
+from api.api_youtube import fetch_trending_videos
 from config import config
 
 router = Router()
