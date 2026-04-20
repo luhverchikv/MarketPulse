@@ -38,7 +38,11 @@ class Config:
     db: DatabaseConfig
     scheduler: SchedulerConfig
     app: AppConfig
+    youtube: YouTubeConfig
 
+@dataclass
+class YouTubeConfig:
+    api_key: str
 
 # =============================================================================
 env = Env()
@@ -67,7 +71,9 @@ config = Config(
         default_territory=env.str("DEFAULT_TERRITORY", "RU"),
         default_topic=env.str("DEFAULT_TOPIC", "AI / Tech"),
         default_period=env.str("DEFAULT_PERIOD", "7d")
-    )
+    ),
+    youtube=YouTubeConfig(
+        api_key=env.str("YOUTUBE_API_KEY", ""))
 )
 
 DB_FULL_PATH = os.path.join(config.db.path, config.db.name)
