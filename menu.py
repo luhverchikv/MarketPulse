@@ -1,50 +1,88 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes
-from db import save_user
+# menu.py
+from aiogram import Router, F, Message, CallbackQuery
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+#from db import save_user
 
+router = Router()
+
+# Константы меню
 TERRITORIES = {"🇷🇺 RU": "RU", "🇺🇸 US": "US", "🇪🇺 EU": "EU", "🇬🇧 GB": "GB"}
-TOPICS = {"🤖 AI / Tech", "💰 Finance", "🛒 E-commerce", "🎮 Gaming"}
+TOPICS = ["🤖 AI / Tech", "💰 Finance", "🛒 E-commerce", "🎮 Gaming"]
 PERIODS = {"📅 1 день": "1d", "📆 7 дней": "7d", "📆 14 дней": "14d", "📆 30 дней": "30d"}
 
-user_config = {}
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton(k, callback_data=f"set_{v}")] for k, v in TERRITORIES.items()]
-    await update.message.reply_text("Выберите территорию для мониторинга:", reply_markup=InlineKeyboardMarkup(keyboard))
-    user_config[update.message.chat_id] = {'step': 'territory'}
+# Состояния для FSM (если захотим расширить функционал)
+class SetupStates:
+    territory = "setup:territory"
+    topic = "setup:topic"
+    period = "setup:period"
 
-async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    chat_id = query.message.chat_id
 
-    if chat_id not in user_config:
-        return
+@router.message(Command("settings"))
+async def cmd_start(message: Message):
+    await message.answer("Привет!")
+    
 
-    cfg = user_config[chat_id]
-    data = query.data
+@router.message(Command("settings"))
+async def cmd_start(message: types.Message, state: FSMContext):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=k, callback_data=f"set_{v}")] 
+        for k, v in TERRITORIES.items()
+    ])
+    await message.answer("🌍 **Выберите территорию для мониторинга:**", reply_markup=keyboard)
+    await state.set_state(SetupStates.territory)
 
-    if cfg['step'] == 'territory':
-        cfg['territory'] = data.replace("set_", "")
-        keyboard = [[InlineKeyboardButton(t, callback_data=f"topic_{t}")] for t in TOPICS]
-        await query.edit_message_text("Выберите тему/нишу:", reply_markup=InlineKeyboardMarkup(keyboard))
-        cfg['step'] = 'topic'
 
-    elif cfg['step'] == 'topic':
-        cfg['topic'] = data.replace("topic_", "")
-        keyboard = [[InlineKeyboardButton(k, callback_data=f"per_{v}")] for k, v in PERIODS.items()]
-        await query.edit_message_text("Выберите период анализа:", reply_markup=InlineKeyboardMarkup(keyboard))
-        cfg['step'] = 'period'
+@router.callback_query(F.data.startswith("set_"))
+async def cb_territory(callback: types.CallbackQuery, state: FSMContext):
+    territory = callback.data.replace("set_", "")
+    await state.update_data(territory=territory)
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=t, callback_data=f"topic_{t}")] 
+        for t in TOPICS
+    ])
+    await callback.message.edit_text("🏷 **Выберите тему/нишу:**", reply_markup=keyboard)
+    await state.set_state(SetupStates.topic)
 
-    elif cfg['step'] == 'period':
-        cfg['period'] = data.replace("per_", "")
-        save_user(chat_id, cfg['territory'], cfg['topic'], cfg['period'])
-        await query.edit_message_text(
-            f"✅ Настройки сохранены!\n\n"
-            f"Территория: {cfg['territory']}\n"
-            f"Тема: {cfg['topic']}\n"
-            f"Период: {cfg['period']}\n\n"
-            f"Рассылка работает ежедневно. Используйте /config для изменения."
-        )
-        del user_config[chat_id]
+
+@router.callback_query(F.data.startswith("topic_"))
+async def cb_topic(callback: types.CallbackQuery, state: FSMContext):
+    topic = callback.data.replace("topic_", "")
+    await state.update_data(topic=topic)
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=k, callback_data=f"per_{v}")] 
+        for k, v in PERIODS.items()
+    ])
+    await callback.message.edit_text("📅 **Выберите период анализа:**", reply_markup=keyboard)
+    await state.set_state(SetupStates.period)
+
+
+@router.callback_query(F.data.startswith("per_"))
+async def cb_period(callback: types.CallbackQuery, state: FSMContext):
+    period = callback.data.replace("per_", "")
+    data = await state.get_data()
+    
+    # Сохраняем настройки в БД
+    #save_user(
+        #chat_id=callback.from_user.id,
+        #territory=data['territory'],
+        #topic=data['topic'],
+        #period=period
+    #)
+    
+    await callback.message.edit_text(
+        f"✅ **Настройки сохранены!**\n\n"
+        f"🌍 Территория: `{data['territory']}`\n"
+        f"🏷 Тема: `{data['topic']}`\n"
+        f"📅 Период: `{period}`\n\n"
+        f"📨 Рассылка работает ежедневно в 09:00.\n"
+        f"Используйте /config для изменения настроек.",
+        parse_mode="Markdown"
+    )
+    await state.clear()
+
 
