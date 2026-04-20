@@ -5,6 +5,7 @@
 
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.filter import StateFilter
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 
@@ -164,7 +165,7 @@ async def cb_google_selected(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.callback_query(F.data == "gtrends_cancel", GoogleTrendsForm.waiting_for_topic | GoogleTrendsForm.waiting_for_region | GoogleTrendsForm.waiting_for_period)
+@router.callback_query(F.data == "gtrends_cancel", StateFilter(GoogleTrendsForm.waiting_for_topic, GoogleTrendsForm.waiting_for_region, GoogleTrendsForm.waiting_for_period))
 async def cb_cancel_gtrends(callback: types.CallbackQuery, state: FSMContext):
     """Отмена FSM-потока"""
     await state.clear()
@@ -232,11 +233,22 @@ async def process_period(callback: types.CallbackQuery, state: FSMContext):
     )
 
 
-@router.message(GoogleTrendsForm.waiting_for_region | GoogleTrendsForm.waiting_for_period)
-async def handle_wrong_input_during_selection(message: types.Message):
-    """Обработка текстовых сообщений, когда ожидается нажатие кнопки"""
+@router.message(GoogleTrendsForm.waiting_for_region)
+async def handle_wrong_input_region(message: types.Message):
+    """Если пользователь прислал текст вместо нажатия кнопки региона"""
     await message.answer(
-        "⚠️ Пожалуйста, используйте кнопки ниже для выбора.",
-        reply_markup=create_region_keyboard() if await GoogleTrendsForm.waiting_for_region.get_state() == message.bot.state else create_period_keyboard()
+        "⚠️ Пожалуйста, выберите регион из кнопок ниже:",
+        reply_markup=create_region_keyboard()
     )
+
+
+@router.message(GoogleTrendsForm.waiting_for_period)
+async def handle_wrong_input_period(message: types.Message):
+    """Если пользователь прислал текст вместо нажатия кнопки периода"""
+    await message.answer(
+        "⚠️ Пожалуйста, выберите период из кнопок ниже:",
+        reply_markup=create_period_keyboard()
+    )
+
+
 
