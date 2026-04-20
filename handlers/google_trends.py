@@ -1,12 +1,15 @@
 # handlers/google_trends.py
-from aiogram import Router, types
+from aiogram import Router, F
+from aiogram.types import Message
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from api.google_trends import fetch_google_trends
 
 router = Router()
 
+
+@router.callback_query(F.data == "plat_google")
 async def fetch_and_send_trends(
-    message: types.Message,
+    message: Message,
     region_code: str,
     topic: str,
     period: str
