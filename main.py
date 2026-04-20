@@ -6,13 +6,14 @@ from config import config
 
 from menu import router as menu_router
 from api.youtube import router as youtube_router
-
+from handlers.google_trends import router as google_trends_router
 
 async def main():
     bot = Bot(token=config.bot.token)
     dp = Dispatcher()
     dp.include_router(menu_router)
     dp.include_router(youtube_router)
+    dp.include_router(google_trends_router)
     
     # Запуск поллинга
     await dp.start_polling(bot)
