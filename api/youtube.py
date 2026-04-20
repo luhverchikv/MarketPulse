@@ -37,7 +37,7 @@ async def cmd_youtube(callback: CallbackQuery):
 
     
     if not config.youtube.api_key:
-        await callback.answer(
+        await callback.message.answer(
             "❌ <b>YouTube API ключ не настроен!</b>\n\n"
             "Добавьте <code>YOUTUBE_API_KEY</code> в .env"
         )
@@ -51,7 +51,7 @@ async def cmd_youtube(callback: CallbackQuery):
         for i in range(0, len(YOUTUBE_CATEGORIES), 2)
     ])
     
-    await callback.answer(
+    await callback.message.answer(
         "🎬 <b>YouTube Trends</b>\n\nВыберите категорию:",
         reply_markup=keyboard,
         parse_mode="HTML"
