@@ -1,5 +1,6 @@
 # handlers/youtube.py
-from aiogram import Router, F, types
+from aiogram import Router, F
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from api.api_youtube import fetch_trending_videos
@@ -31,12 +32,12 @@ YOUTUBE_REGIONS = {
 }
 
 
-@router.message(Command("youtube"))
-async def cmd_youtube(message: types.Message):
-    """Команда /youtube"""
+@router.callback_query(F.data == "plat_youtube")
+async def cmd_youtube(callback: CallbackQuery):
+
     
     if not config.youtube.api_key:
-        await message.answer(
+        await callback.answer(
             "❌ <b>YouTube API ключ не настроен!</b>\n\n"
             "Добавьте <code>YOUTUBE_API_KEY</code> в .env"
         )
@@ -50,7 +51,7 @@ async def cmd_youtube(message: types.Message):
         for i in range(0, len(YOUTUBE_CATEGORIES), 2)
     ])
     
-    await message.answer(
+    await callback.answer(
         "🎬 <b>YouTube Trends</b>\n\nВыберите категорию:",
         reply_markup=keyboard,
         parse_mode="HTML"
@@ -58,7 +59,7 @@ async def cmd_youtube(message: types.Message):
 
 
 @router.callback_query(F.data.startswith("yt_cat_"))
-async def cb_youtube_category(callback: types.CallbackQuery):
+async def cb_youtube_category(callback: CallbackQuery):
     """Выбор категории"""
     category_id = callback.data.replace("yt_cat_", "")
     category_name = next(
