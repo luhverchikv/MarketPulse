@@ -21,7 +21,7 @@ class SetupStates:
     period = "setup:period"
 
 
-@router.message(Command("settings"))
+@router.message(Command("start"))
 async def cmd_start(message: Message):
     await message.answer("Привет!")
     
