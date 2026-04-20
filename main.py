@@ -1,21 +1,42 @@
-import os
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler
-from db import init_db
-from menu import start, handle_buttons
-from scheduler import setup_scheduler
+# main.py
+import asyncio
+from aiogram import Bot, Dispatcher
+#from aiogram.client.default import DefaultBotProperties
+#from aiogram.enums import ParseMode
 
-def main():
-    BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВЬТЕ_ТОКЕН_СЮДА")
+from config import config
+#from db import init_db
+from menu import router as menu_router
+#from scheduler import scheduler_worker
+
+
+
+
+#async def on_startup(bot: Bot):
+    #"""Выполняется при запуске бота"""
+    #init_db()
+    #print(f"✅ {config.app.project_name} запущен | БД: {DB_FULL_PATH}")
     
-    init_db()
-    setup_scheduler(BOT_TOKEN)
+    # Запускаем планировщик в фоне
+    #if config.scheduler.enabled:
+        #asyncio.create_task(
+            #scheduler_worker(bot, config.scheduler.daily_digest_time)
+        #)
 
-    app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(handle_buttons))
 
-    app.run_polling(drop_pending_updates=True)
+async def main():
+    bot = Bot(token=config.bot.token)
+    dp = Dispatcher()
+    dp.include_router(menu_router)
+    dp.startup.register(on_startup)
+    
+    # Запуск поллинга
+    await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("🛑 Бот остановлен")
 
