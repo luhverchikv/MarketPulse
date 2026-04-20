@@ -43,6 +43,12 @@ class YouTubeConfig:
 
 
 @dataclass
+class YandexConfig:
+    """Настройки Yandex API"""
+    wordstat_key: str = ""  # Опционально, для Wordstat API
+
+
+@dataclass
 class Config:
     """Корневой конфиг приложения"""
     bot: TgBot
@@ -50,6 +56,7 @@ class Config:
     scheduler: SchedulerConfig
     app: AppConfig
     youtube: YouTubeConfig  # Теперь YouTubeConfig уже определён выше
+    yandex: YandexConfig  # Добавлен YandexConfig
 
 
 # =============================================================================
@@ -88,6 +95,9 @@ config = Config(
     ),
     youtube=YouTubeConfig(
         api_key=env.str("YOUTUBE_API_KEY", "")
+    ),
+    yandex=YandexConfig(
+        wordstat_key=env.str("YANDEX_WORDSTAT_KEY", "")
     )
 )
 
