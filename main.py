@@ -28,7 +28,7 @@ async def main():
     bot = Bot(token=config.bot.token)
     dp = Dispatcher()
     dp.include_router(menu_router)
-    dp.startup.register(on_startup)
+    #dp.startup.register(on_startup)
     
     # Запуск поллинга
     await dp.start_polling(bot)
