@@ -251,4 +251,9 @@ async def handle_wrong_input_period(message: types.Message):
     )
 
 
+@router.callback_query(F.data == "gtrends_start")
+async def cb_gtrends_restart(callback: types.CallbackQuery, state: FSMContext):
+    """Перезапуск поиска с начала"""
+    await cb_google_selected(callback, state)  # Переиспользуем стартовую функцию
+
 
