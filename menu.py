@@ -27,7 +27,7 @@ async def cmd_start(message: Message):
     
 
 @router.message(Command("settings"))
-async def cmd_settings(message: types.Message, state: FSMContext):
+async def cmd_settings(message: Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=k, callback_data=f"set_{v}")] 
         for k, v in TERRITORIES.items()
@@ -37,7 +37,7 @@ async def cmd_settings(message: types.Message, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("set_"))
-async def cb_territory(callback: types.CallbackQuery, state: FSMContext):
+async def cb_territory(callback: CallbackQuery, state: FSMContext):
     territory = callback.data.replace("set_", "")
     await state.update_data(territory=territory)
     
@@ -50,7 +50,7 @@ async def cb_territory(callback: types.CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("topic_"))
-async def cb_topic(callback: types.CallbackQuery, state: FSMContext):
+async def cb_topic(callback: CallbackQuery, state: FSMContext):
     topic = callback.data.replace("topic_", "")
     await state.update_data(topic=topic)
     
@@ -63,7 +63,7 @@ async def cb_topic(callback: types.CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("per_"))
-async def cb_period(callback: types.CallbackQuery, state: FSMContext):
+async def cb_period(callback: CallbackQuery, state: FSMContext):
     period = callback.data.replace("per_", "")
     data = await state.get_data()
     
