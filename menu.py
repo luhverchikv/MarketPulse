@@ -26,7 +26,7 @@ async def cmd_start(message: Message):
     
 
 @router.message(Command("settings"))
-async def cmd_start(message: types.Message, state: FSMContext):
+async def cmd_settings(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=k, callback_data=f"set_{v}")] 
         for k, v in TERRITORIES.items()
