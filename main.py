@@ -5,8 +5,8 @@ from config import config
 #from db import init_db
 
 from menu import router as menu_router
-from api.youtube import router as youtube_router
-from handlers.google_trends import router as google_trends_router
+from handlers.youtube_trends import router as youtube_router
+from handlers.reddit_trends import router as reddit_trends_router
 from handlers.yandex_trends import router as yandex_trends_router
 
 
@@ -15,7 +15,7 @@ async def main():
     dp = Dispatcher()
     dp.include_router(menu_router)
     dp.include_router(youtube_router)
-    dp.include_router(google_trends_router)
+    dp.include_router(reddit_trends_router)
     dp.include_router(yandex_trends_router)
     
     # Запуск поллинга
