@@ -8,6 +8,7 @@ from menu import router as menu_router
 from handlers.youtube_trends import router as youtube_router
 from handlers.reddit_trends import router as reddit_trends_router
 from handlers.yandex_trends import router as yandex_trends_router
+from handlers.tiktok_trends import router as tiktok_trends_router
 
 
 async def main():
@@ -17,6 +18,7 @@ async def main():
     dp.include_router(youtube_router)
     dp.include_router(reddit_trends_router)
     dp.include_router(yandex_trends_router)
+    dp.include_router(tiktok_trends_router)
     
     # Запуск поллинга
     await dp.start_polling(bot)
