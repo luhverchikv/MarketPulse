@@ -4,7 +4,6 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-#from db import save_user
 from config import config
 
 router = Router()
@@ -14,7 +13,7 @@ PLATFORMS = {
     "▶️ YouTube": "youtube",
     "🔍 Reddit Trends": "reddit",
     "🔎 Яндекс": "yandex",
-    # "🎵 TikTok": "tiktok",      # Заглушка на будущее
+    "🎵 TikTok": "tiktok",
     # "🐦 X / Twitter": "twitter", # Заглушка на будущее
 }
 
