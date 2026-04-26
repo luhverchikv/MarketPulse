@@ -14,6 +14,7 @@ PLATFORMS = {
     "🔍 Reddit Trends": "reddit",
     "🔎 Яндекс": "yandex",
     "🎵 TikTok": "tiktok",
+    "📌 Pinterest": "pinterest",
     # "🐦 X / Twitter": "twitter", # Заглушка на будущее
 }
 
