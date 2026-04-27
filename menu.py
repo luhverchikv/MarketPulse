@@ -15,6 +15,7 @@ PLATFORMS = {
     "🔎 Яндекс": "yandex",
     "🎵 TikTok": "tiktok",
     "📌 Pinterest": "pinterest",
+    "🔵 VKontakte": "vk",
     # "🐦 X / Twitter": "twitter", # Заглушка на будущее
 }
 
